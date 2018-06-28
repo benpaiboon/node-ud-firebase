@@ -11,20 +11,25 @@ const gcs = require('@google-cloud/storage')({
 
 const bucket = gcs.bucket(bucketName);
 
-const filePath = `resources/testUpload/npm.jpg`;
-const uploadTo = `img/npm.jpg`;
-const fileMime = mime.getType(filePath);
+const fs = require('fs');
+const uploadFolder = 'resources/testUpload';
 
-bucket.upload(filePath, {
-  destination: uploadTo,
-  public: true,
-  metadata: { contentType: fileMime, cacheControl: "public, max-age=300" }
-}, function (err, file) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-  console.log(`http://storage.googleapis.com/${bucketName}/${encodeURIComponent(uploadTo)}`);
+fs.readdirSync(uploadFolder).forEach(file => {
+  let filePath = `${uploadFolder}/${file}`;
+  let uploadTo = `img/${file}`;
+  let fileMime = mime.getType(filePath);
+
+  bucket.upload(filePath, {
+    destination: uploadTo,
+    public: true,
+    metadata: { contentType: fileMime, cacheControl: "public, max-age=30000" }
+  }, function (err, file) {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    console.log(`http://storage.googleapis.com/${bucketName}/${encodeURIComponent(uploadTo)}`);
+  });
 });
 
 
